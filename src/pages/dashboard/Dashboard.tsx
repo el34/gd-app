@@ -60,7 +60,9 @@ const Dashboard: React.FC = () => {
     return (
         <Page>
             <Row>
-                <DashboardTitle title={dateState.selectedFilterOption.localIdentifier} />
+                <DashboardTitle
+                    title={DateFilterHelpers.getDateFilterTitle(dateState.selectedFilterOption, "en-US")}
+                />
             </Row>
             <Row>
                 <Col span={24}>

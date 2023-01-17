@@ -8,5 +8,5 @@ export interface IDashboardTitleProps {
 }
 
 export const DashboardTitle: React.FC<React.PropsWithChildren<IDashboardTitleProps>> = ({ title }) => {
-    return <Title level={3}>{`My dashboard ${title.toLowerCase().split("_").join(" ")}`}</Title>;
+    return <Title level={3}>{`My dashboard ${title.toLowerCase()}`}</Title>;
 };
