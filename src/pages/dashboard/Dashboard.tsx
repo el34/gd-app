@@ -3,12 +3,13 @@ import { useExecutionDataView } from "@gooddata/sdk-ui";
 import { LineChart } from "@gooddata/sdk-ui-charts";
 import { DateFilterHelpers, DateFilterOption, defaultDateFilterOptions } from "@gooddata/sdk-ui-filters";
 import React, { useEffect, useMemo, useState } from "react";
+import { Col, Row } from "antd";
 import { useBackend } from "../../contexts/Auth";
-
 import Page from "../../components/Page";
 import { workspace } from "../../constants";
 import * as Md from "../../md/full";
 import { DashboardDatePicker } from "./components/DashboardDatePicker";
+import { DashboardCalculator } from "./components/DashboardCalculator";
 
 const Revenue = Md.Revenue;
 const Product = Md.Product.Default;
@@ -44,9 +45,7 @@ const Dashboard: React.FC = () => {
             ...newTwoDimensional([MeasureGroupIdentifier, Product], [Md.DateDatasets.Date.Month.Long]),
         );
 
-    const { result } = useExecutionDataView({ execution });
-    const productNames = result?.dataView.headerItems[0][1].map((item: any) => item.attributeHeaderItem.name);
-    console.log(result, productNames);
+    const { result, status } = useExecutionDataView({ execution });
 
     useEffect(() => {
         console.log(dateFilter);
@@ -54,24 +53,34 @@ const Dashboard: React.FC = () => {
 
     const onDatePickerApply = (options: IDateFilterComponentState) => {
         setDateState({ ...options });
-        console.log(options);
     };
 
     return (
         <Page>
-            <DashboardDatePicker
-                selectedFilterOption={dateState.selectedFilterOption}
-                excludeCurrentPeriod={dateState.excludeCurrentPeriod}
-                onDatePickerApply={onDatePickerApply}
-            />
-            <div style={style} className="s-line-chart">
-                <LineChart
-                    measures={[Revenue]}
-                    trendBy={Md.DateDatasets.Date.Month.Long}
-                    segmentBy={Product}
-                    filters={dateFilter ? [dateFilter] : []}
-                />
-            </div>
+            <Row>
+                <Col span={24}>
+                    <DashboardDatePicker
+                        selectedFilterOption={dateState.selectedFilterOption}
+                        excludeCurrentPeriod={dateState.excludeCurrentPeriod}
+                        onDatePickerApply={onDatePickerApply}
+                    />
+                </Col>
+            </Row>
+            <Row>
+                <Col span={18}>
+                    <div style={style} className="s-line-chart">
+                        <LineChart
+                            measures={[Revenue]}
+                            trendBy={Md.DateDatasets.Date.Month.Long}
+                            segmentBy={Product}
+                            filters={dateFilter ? [dateFilter] : []}
+                        />
+                    </div>
+                </Col>
+                <Col span={6}>
+                    <DashboardCalculator data={result?.dataView.data as string[][]} status={status} />
+                </Col>
+            </Row>
         </Page>
     );
 };
