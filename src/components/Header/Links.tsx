@@ -15,7 +15,7 @@ const Links: React.FC = () => {
                 Welcome
             </NavLink>
             <NavLink to={"/"} className={styles.Link} activeClassName={styles.LinkActive} exact>
-                Home
+                Dashboard
             </NavLink>
         </>
     );
