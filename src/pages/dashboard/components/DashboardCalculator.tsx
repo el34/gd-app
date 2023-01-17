@@ -42,7 +42,7 @@ export const DashboardCalculator: React.FC<React.PropsWithChildren<IDashboardCal
                 ) : (
                     <>
                         <Row>
-                            {value === undefined ? (
+                            {data === undefined ? (
                                 <Title level={4} style={{ marginTop: 0 }}>
                                     N/A
                                 </Title>
@@ -55,6 +55,7 @@ export const DashboardCalculator: React.FC<React.PropsWithChildren<IDashboardCal
                                 defaultValue={selected}
                                 style={{ width: 250 }}
                                 onChange={setSelected}
+                                disabled={data === undefined}
                                 options={[
                                     {
                                         value: "max",
