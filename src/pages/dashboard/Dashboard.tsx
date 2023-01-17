@@ -10,6 +10,7 @@ import { workspace } from "../../constants";
 import * as Md from "../../md/full";
 import { DashboardDatePicker } from "./components/DashboardDatePicker";
 import { DashboardCalculator } from "./components/DashboardCalculator";
+import { DashboardTitle } from "./components/DashboardTitle";
 
 const Revenue = Md.Revenue;
 const Product = Md.Product.Default;
@@ -52,11 +53,15 @@ const Dashboard: React.FC = () => {
     }, [dateFilter]);
 
     const onDatePickerApply = (options: IDateFilterComponentState) => {
+        console.log(options);
         setDateState({ ...options });
     };
 
     return (
         <Page>
+            <Row>
+                <DashboardTitle title={dateState.selectedFilterOption.localIdentifier} />
+            </Row>
             <Row>
                 <Col span={24}>
                     <DashboardDatePicker
