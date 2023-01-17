@@ -1,13 +1,16 @@
-import { modifyMeasure } from "@gooddata/sdk-model";
+import { MeasureGroupIdentifier, newTwoDimensional } from "@gooddata/sdk-model";
+import { useExecutionDataView } from "@gooddata/sdk-ui";
 import { LineChart } from "@gooddata/sdk-ui-charts";
 import { DateFilterHelpers, DateFilterOption, defaultDateFilterOptions } from "@gooddata/sdk-ui-filters";
 import React, { useEffect, useMemo, useState } from "react";
+import { useBackend } from "../../contexts/Auth";
 
 import Page from "../../components/Page";
+import { workspace } from "../../constants";
 import * as Md from "../../md/full";
 import { DashboardDatePicker } from "./components/DashboardDatePicker";
 
-const Revenue = modifyMeasure(Md.Revenue, (m) => m.format("#,##0"));
+const Revenue = Md.Revenue;
 const Product = Md.Product.Default;
 
 const style = { height: 600 };
@@ -30,6 +33,20 @@ const Dashboard: React.FC = () => {
             dateState.excludeCurrentPeriod,
         );
     }, [dateState]);
+
+    const backend = useBackend();
+
+    const execution = backend
+        .workspace(workspace)
+        .execution()
+        .forItems([Product, Revenue, Md.DateDatasets.Date.Month.Long], [dateFilter])
+        .withDimensions(
+            ...newTwoDimensional([MeasureGroupIdentifier, Product], [Md.DateDatasets.Date.Month.Long]),
+        );
+
+    const { result } = useExecutionDataView({ execution });
+    const productNames = result?.dataView.headerItems[0][1].map((item: any) => item.attributeHeaderItem.name);
+    console.log(result, productNames);
 
     useEffect(() => {
         console.log(dateFilter);
