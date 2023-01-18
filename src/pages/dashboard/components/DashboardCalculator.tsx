@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { Card, Row, Select, Spin, Typography } from "antd";
 import { max, min, sum } from "lodash";
+import { median } from "mathjs";
 
 const { Title } = Typography;
 
@@ -13,20 +14,25 @@ export const DashboardCalculator: React.FC<React.PropsWithChildren<IDashboardCal
     data,
     status,
 }) => {
-    console.log(data);
     const [value, setValue] = useState<number | undefined>(undefined);
     const [selected, setSelected] = useState<string>("max");
+
+    const dataNumberArr: number[][] | null = data
+        ? (data?.map((product) => product?.map((str: string) => Number(str))) as unknown as number[][])
+        : null;
 
     const getResultValue = useCallback(() => {
         switch (selected) {
             case "max":
-                return sum(data?.map((product) => max(product?.map((str: any) => Number(str)))));
+                return dataNumberArr ? sum(dataNumberArr.map((product) => max(product))) : undefined;
             case "min":
-                return sum(data?.map((product) => min(product?.map((str: any) => Number(str)))));
+                return dataNumberArr ? sum(dataNumberArr.map((product) => min(product))) : undefined;
+            case "med":
+                return dataNumberArr ? median(dataNumberArr.map((product) => median(product))) : undefined;
             default:
                 return undefined;
         }
-    }, [data, selected]);
+    }, [dataNumberArr, selected]);
 
     useEffect(() => {
         setValue(getResultValue());
@@ -64,6 +70,10 @@ export const DashboardCalculator: React.FC<React.PropsWithChildren<IDashboardCal
                                     {
                                         value: "min",
                                         label: "Minimum Revenue",
+                                    },
+                                    {
+                                        value: "med",
+                                        label: "Median",
                                     },
                                 ]}
                             />
