@@ -3,7 +3,7 @@ import { useExecutionDataView } from "@gooddata/sdk-ui";
 import { LineChart } from "@gooddata/sdk-ui-charts";
 import { DateFilterHelpers, DateFilterOption, defaultDateFilterOptions } from "@gooddata/sdk-ui-filters";
 import React, { useEffect, useMemo, useState } from "react";
-import { Col, Row } from "antd";
+import { Col, Row, Card, Spin } from "antd";
 import { useBackend } from "../../contexts/Auth";
 import Page from "../../components/Page";
 import { workspace } from "../../constants";
@@ -48,12 +48,9 @@ const Dashboard: React.FC = () => {
 
     const { result, status } = useExecutionDataView({ execution });
 
-    useEffect(() => {
-        console.log(dateFilter);
-    }, [dateFilter]);
+    useEffect(() => {}, [dateFilter, result]);
 
     const onDatePickerApply = (options: IDateFilterComponentState) => {
-        console.log(options);
         setDateState({ ...options });
     };
 
@@ -85,7 +82,26 @@ const Dashboard: React.FC = () => {
                     </div>
                 </Col>
                 <Col span={6}>
-                    <DashboardCalculator data={result?.dataView.data as string[][]} status={status} />
+                    <div className="site-card-border-less-wrapper">
+                        <Card
+                            title="Revenue across products"
+                            bordered={false}
+                            style={{ width: 300, height: 200 }}
+                        >
+                            {status === "loading" && !result ? (
+                                <div style={{ width: "100%", height: "100%", textAlign: "center" }}>
+                                    <Spin />
+                                </div>
+                            ) : (
+                                <DashboardCalculator
+                                    data={result?.dataView.data as string[][]}
+                                    productNames={result?.dataView.headerItems[0][1].map(
+                                        (product: any) => product?.attributeHeaderItem.name,
+                                    )}
+                                />
+                            )}
+                        </Card>
+                    </div>
                 </Col>
             </Row>
         </Page>

@@ -1,86 +1,94 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Card, Row, Select, Spin, Typography } from "antd";
-import { max, min, sum } from "lodash";
+import { Row, Select, Typography } from "antd";
+import { max, min } from "lodash";
 import { median } from "mathjs";
 
 const { Title } = Typography;
 
 export interface IDashboardCalculatorProps {
     data?: string[][];
-    status?: string;
+    productNames?: string[];
 }
 
 export const DashboardCalculator: React.FC<React.PropsWithChildren<IDashboardCalculatorProps>> = ({
     data,
-    status,
+    productNames,
 }) => {
     const [value, setValue] = useState<number | undefined>(undefined);
-    const [selected, setSelected] = useState<string>("max");
+    const [selectedOption, setSelectedOption] = useState<string>("max");
+    const [selectedProduct, setSelectedProduct] = useState<string | undefined>(productNames?.[0]);
 
     const dataNumberArr: number[][] | null = data
         ? (data?.map((product) => product?.map((str: string) => Number(str))) as unknown as number[][])
         : null;
 
     const getResultValue = useCallback(() => {
-        switch (selected) {
+        switch (selectedOption) {
             case "max":
-                return dataNumberArr ? sum(dataNumberArr.map((product) => max(product))) : undefined;
+                return dataNumberArr && selectedProduct && productNames
+                    ? max(dataNumberArr[productNames.indexOf(selectedProduct)])
+                    : undefined;
             case "min":
-                return dataNumberArr ? sum(dataNumberArr.map((product) => min(product))) : undefined;
+                return dataNumberArr && selectedProduct && productNames
+                    ? min(dataNumberArr[productNames.indexOf(selectedProduct)])
+                    : undefined;
             case "med":
-                return dataNumberArr ? median(dataNumberArr.map((product) => median(product))) : undefined;
+                return dataNumberArr && selectedProduct && productNames
+                    ? median(dataNumberArr[productNames.indexOf(selectedProduct)])
+                    : undefined;
             default:
                 return undefined;
         }
-    }, [dataNumberArr, selected]);
+    }, [dataNumberArr, selectedOption, selectedProduct, productNames]);
 
     useEffect(() => {
         setValue(getResultValue());
-    }, [selected, getResultValue]);
+    }, [selectedOption, selectedProduct, getResultValue]);
 
     return (
-        <div className="site-card-border-less-wrapper">
-            <Card title="Revenue across products" bordered={false} style={{ width: 300, height: 200 }}>
-                {status === "loading" ? (
-                    <div style={{ width: "100%", height: "100%", textAlign: "center" }}>
-                        <Spin />
-                    </div>
+        <>
+            <Row>
+                {value === undefined ? (
+                    <Title level={4} style={{ marginTop: 0 }}>
+                        N/A
+                    </Title>
                 ) : (
-                    <>
-                        <Row>
-                            {data === undefined ? (
-                                <Title level={4} style={{ marginTop: 0 }}>
-                                    N/A
-                                </Title>
-                            ) : (
-                                <Title level={4} style={{ marginTop: 0 }}>{`$${value}`}</Title>
-                            )}
-                        </Row>
-                        <Row>
-                            <Select
-                                defaultValue={selected}
-                                style={{ width: 250 }}
-                                onChange={setSelected}
-                                disabled={data === undefined}
-                                options={[
-                                    {
-                                        value: "max",
-                                        label: "Maximum Revenue",
-                                    },
-                                    {
-                                        value: "min",
-                                        label: "Minimum Revenue",
-                                    },
-                                    {
-                                        value: "med",
-                                        label: "Median",
-                                    },
-                                ]}
-                            />
-                        </Row>
-                    </>
+                    <Title level={4} style={{ marginTop: 0 }}>{`$${Math.round(value)}`}</Title>
                 )}
-            </Card>
-        </div>
+            </Row>
+            <Row style={{ marginBottom: 12 }}>
+                <Select
+                    defaultValue={selectedOption}
+                    style={{ width: 250 }}
+                    onChange={setSelectedOption}
+                    disabled={data === undefined}
+                    options={[
+                        {
+                            value: "max",
+                            label: "Maximum Revenue",
+                        },
+                        {
+                            value: "min",
+                            label: "Minimum Revenue",
+                        },
+                        {
+                            value: "med",
+                            label: "Median",
+                        },
+                    ]}
+                />
+            </Row>
+            <Row>
+                <Select
+                    defaultValue={productNames?.[0]}
+                    style={{ width: 250 }}
+                    onChange={setSelectedProduct}
+                    disabled={data === undefined}
+                    options={productNames?.map((name) => {
+                        return { value: name, label: name };
+                    })}
+                />
+            </Row>
+        </>
     );
 };
